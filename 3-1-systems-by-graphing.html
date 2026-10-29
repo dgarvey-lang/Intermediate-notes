@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3-1 Solving Systems of Equations by Graphing (Interactive)</title>
+<style>
+:root{
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --bg:#f3f5f8; --surface:#ffffff; --text:#1b2430; --muted:#5b6778; --border:#d3dae4;
+  --accent:#0f6f8c; --accent-text:#ffffff; --accent-soft:#e3f2f7;
+  --ok:#1b8a4b; --okbg:#e5f6ec; --bad:#c23a3a; --badbg:#fbe9e9;
+  --blue:#1f6fd6; --red:#d6402f; --green:#1b8a4b;
+  --grid:#e3e8ef; --axis:#7d8896; --canvasbg:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#12171d; --surface:#1b222b; --text:#e8edf3; --muted:#9aa7b8; --border:#33404f;
+    --accent:#4cb8d6; --accent-text:#0b1a20; --accent-soft:#1c3440;
+    --ok:#52c985; --okbg:#173325; --bad:#ff7b7b; --badbg:#3a1d1f;
+    --blue:#5aa2ff; --red:#ff7b6b; --green:#52c985;
+    --grid:#2a3441; --axis:#8795a6; --canvasbg:#161d25;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#12171d; --surface:#1b222b; --text:#e8edf3; --muted:#9aa7b8; --border:#33404f;
+  --accent:#4cb8d6; --accent-text:#0b1a20; --accent-soft:#1c3440;
+  --ok:#52c985; --okbg:#173325; --bad:#ff7b7b; --badbg:#3a1d1f;
+  --blue:#5aa2ff; --red:#ff7b6b; --green:#52c985;
+  --grid:#2a3441; --axis:#8795a6; --canvasbg:#161d25;
+}
+html{scroll-padding-top: env(safe-area-inset-top, 0px);}
+*,*::before,*::after{box-sizing:inherit}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size:18px; line-height:1.5;
+}
+header.top{
+  display:flex; align-items:center; gap:14px; padding:12px 20px;
+  background:var(--surface); border-bottom:1px solid var(--border);
+}
+header.top .unit{font-weight:700; color:var(--accent); white-space:nowrap}
+header.top .stitle{color:var(--muted); font-size:.9em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.progress{height:4px; background:var(--border)}
+.progress > div{height:100%; width:0; background:var(--accent); transition:width .25s}
+main{max-width:1180px; margin:0 auto; padding:22px 20px 110px}
+.slide{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:28px 32px}
+.slide[hidden]{display:none}
+h1{font-size:2.1em; line-height:1.15; margin:0 0 .3em}
+h2{font-size:1.55em; margin:0 0 .5em; line-height:1.2}
+h3{font-size:1.1em; margin:1.2em 0 .4em}
+p{margin:.5em 0}
+.lead{font-size:1.1em}
+.muted{color:var(--muted)}
+.cols{display:grid; grid-template-columns:minmax(0,1fr); gap:28px; align-items:start}
+@media (min-width:900px){ .cols{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)} }
+.fld{
+  font:inherit; color:var(--text); background:var(--surface);
+  border:2px solid var(--border); border-radius:8px; padding:4px 8px; margin:2px 3px;
+  max-width:100%;
+}
+input.fld{text-align:center}
+.fld:focus{outline:3px solid var(--accent-soft); border-color:var(--accent)}
+.fld.ok{border-color:var(--ok); background:var(--okbg)}
+.fld.bad{border-color:var(--bad); background:var(--badbg)}
+textarea.fld{width:100%; text-align:left; resize:vertical; display:block}
+.btn{
+  font:inherit; font-size:.9em; color:var(--text); background:var(--surface);
+  border:2px solid var(--border); border-radius:8px; padding:6px 14px; cursor:pointer;
+}
+.btn:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.4; cursor:default}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:var(--accent-text); font-weight:600}
+.checkbar{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:16px}
+.msg{font-size:.95em; color:var(--muted)}
+.msg.good{color:var(--ok); font-weight:600}
+.after{margin-top:12px; padding:10px 14px; border-left:4px solid var(--ok); background:var(--okbg); border-radius:6px}
+.after[hidden]{display:none}
+.note{padding:10px 14px; border-left:4px solid var(--accent); background:var(--accent-soft); border-radius:6px; margin:14px 0}
+.eqrow{border:1px solid var(--border); border-radius:10px; padding:12px 16px; margin:12px 0}
+.eqname{font-size:.8em; text-transform:uppercase; letter-spacing:.06em; color:var(--muted)}
+.eqtext{font-size:1.3em; font-weight:600; margin:2px 0 6px}
+.expr{font-weight:600; white-space:nowrap}
+.final{margin-top:14px; font-size:1.05em}
+.goal{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 18px; padding:12px 0; border-bottom:1px solid var(--border)}
+.goal:last-of-type{border-bottom:0}
+.goal span.g{flex:1 1 380px}
+.cases{display:grid; gap:16px}
+.case{display:grid; grid-template-columns:140px minmax(0,1fr); gap:6px 18px; align-items:center; border:1px solid var(--border); border-radius:10px; padding:12px 16px}
+.case svg{width:130px; height:98px; background:var(--canvasbg); border:1px solid var(--border); border-radius:8px}
+.case .cname{font-weight:700; font-size:1.1em; margin-bottom:4px}
+@media (max-width:620px){ .case{grid-template-columns:1fr} }
+.graphwrap{max-width:520px}
+.gtools{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:.9em; color:var(--muted)}
+.legend .dot{display:inline-block; width:12px; height:12px; border-radius:50%; margin:0 4px 0 10px; vertical-align:-1px}
+.legend .dot:first-child{margin-left:0}
+.dot.b{background:var(--blue)} .dot.r{background:var(--red)}
+.coord{font-weight:700; color:var(--text); min-width:6ch; text-align:right}
+.gcanvas{width:100%; aspect-ratio:1/1; display:block; border:2px solid var(--border); border-radius:10px; background:var(--canvasbg); cursor:crosshair; touch-action:manipulation}
+.gbtns{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+.gmsg{min-height:1.5em; margin-top:8px}
+table.dm{width:100%; border-collapse:collapse; margin-top:8px}
+table.dm th, table.dm td{padding:8px 6px; border-bottom:1px solid var(--border); text-align:left; vertical-align:middle}
+table.dm th{font-size:.8em; text-transform:uppercase; letter-spacing:.05em; color:var(--muted)}
+ol.steps{padding-left:1.3em} ol.steps li{margin:.5em 0}
+a{color:var(--accent); font-weight:600}
+nav.bottom{
+  position:fixed; left:0; right:0; bottom:0; z-index:5;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:10px 20px; padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+  background:var(--surface); border-top:1px solid var(--border);
+}
+.dots{display:flex; flex-wrap:wrap; gap:7px; justify-content:center; flex:1}
+.dots button{width:12px; height:12px; padding:0; border-radius:50%; border:2px solid var(--axis); background:transparent; cursor:pointer}
+.dots button.on{background:var(--accent); border-color:var(--accent)}
+.count{font-size:.85em; color:var(--muted); min-width:7.5ch; text-align:center}
+.resp{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:.8em}
+@media (max-width:620px){
+  body{font-size:16px} .slide{padding:20px 16px} main{padding:14px 10px 110px}
+  .dots{display:none}
+}
+
+.help{margin-top:26px; border-top:1px dashed var(--border); padding-top:16px}
+.help summary{
+  display:inline-block; list-style:none; cursor:pointer; font-size:.9em; font-weight:600;
+  color:var(--accent); border:2px solid var(--accent); border-radius:8px; padding:6px 14px; background:var(--surface);
+}
+.help summary::-webkit-details-marker{display:none}
+.help summary:hover{background:var(--accent-soft)}
+.help[open] summary{background:var(--accent); color:var(--accent-text)}
+.help summary .hide{display:none}
+.help[open] summary .show{display:none}
+.help[open] summary .hide{display:inline}
+.help .hbody{margin-top:14px; padding:14px 18px; border-left:4px solid var(--accent); background:var(--accent-soft); border-radius:6px}
+.help .hbody h4{margin:.9em 0 .3em; font-size:1em}
+.help .hbody h4:first-child{margin-top:0}
+.help .hbody p, .help .hbody ol, .help .hbody ul{margin:.4em 0}
+.help .hbody .math{font-weight:600; white-space:nowrap}
+.redo{margin-top:22px; display:flex; flex-wrap:wrap; align-items:center; gap:10px}
+.redo + .help{margin-top:16px; border-top:0; padding-top:0}
+header.top .spacer{flex:1}
+@media (max-width:620px){ header.top .stitle{display:none} }
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="unit">Unit 3 · Systems of Equations</span>
+  <span class="stitle" id="stitle"></span>
+  <span class="spacer"></span>
+  <button class="btn" id="helpall" aria-pressed="false">Open all explanations</button>
+</header>
+<div class="progress"><div id="bar"></div></div>
+<main id="deck"></main>
+<nav class="bottom">
+  <button class="btn" id="prev">← Back</button>
+  <div class="dots" id="dots"></div>
+  <span class="count" id="count"></span>
+  <button class="btn primary" id="next">Next →</button>
+</nav>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- saved state (per student, in their own browser) ---------- */
+var STORE = 'sys31-interactive-v1';
+var state = {v:{}, g:{}};
+try{
+  var raw = localStorage.getItem(STORE);
+  if(raw){ var p = JSON.parse(raw); if(p && p.v) state.v = p.v; if(p && p.g) state.g = p.g; }
+}catch(e){}
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){} }
+
+/* ---------- small builders ---------- */
+function F(key, group, ans, o){
+  o = o || {};
+  return '<input class="fld" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"' +
+    ' data-key="'+key+'" data-group="'+group+'"' + (ans!=null ? ' data-ans="'+ans+'"' : '') +
+    ' data-label="'+(o.label||key)+'" style="width:'+(o.w||6)+'ch"' +
+    (o.ph ? ' placeholder="'+o.ph+'"' : '') + ' aria-label="'+(o.label||key)+'">';
+}
+function S(key, group, ans, opts, o){
+  o = o || {};
+  return '<select class="fld" data-key="'+key+'" data-group="'+group+'"' + (ans!=null ? ' data-ans="'+ans+'"' : '') +
+    ' data-label="'+(o.label||key)+'" aria-label="'+(o.label||key)+'"><option value="">Choose…</option>' +
+    opts.map(function(x){return '<option>'+x+'</option>';}).join('') + '</select>';
+}
+function CB(g){
+  return '<div class="checkbar"><button class="btn primary" data-check="'+g+'">Check</button>' +
+    '<button class="btn" data-reveal="'+g+'">Show answers</button>' +
+    '<span class="msg" data-msg="'+g+'" role="status"></span></div>';
+}
+function AFTER(g, text){ return '<div class="after" data-after="'+g+'" hidden>'+text+'</div>'; }
+
+function pairBlock(id, xs, ys, eqs, finalAns){
+  var h = '<p class="lead">Is the point <b>('+xs+', '+ys+')</b> a solution of this system? (That means x = '+xs+' and y = '+ys+'.)</p>';
+  eqs.forEach(function(e, i){
+    h += '<div class="eqrow"><div class="eqname">Equation '+(i+1)+'</div><div class="eqtext">'+e.eq+'</div>' +
+      '<div>Plug in: <span class="expr">'+e.plug+'</span> = ' +
+      F(id+'v'+i, id, e.val, {w:5, label:id+' equation '+(i+1)+' value'}) +
+      ' &nbsp;Compare with <b>'+e.cmp+'</b> → ' +
+      S(id+'t'+i, id, e.truth ? 'TRUE' : 'FALSE', ['TRUE','FALSE'], {label:'Equation '+(i+1)+' true or false'}) +
+      '</div></div>';
+  });
+  h += '<div class="final">So is ('+xs+', '+ys+') a solution of the system? ' +
+    S(id+'final', id, finalAns, ['Yes','No'], {label:'Is ('+xs+', '+ys+') a solution?'}) + '</div>';
+  return h;
+}
+
+function graphBlock(id){
+  return '<div class="graphwrap" data-graph="'+id+'">' +
+    '<div class="gtools"><span class="legend"><i class="dot b"></i>Equation 1<i class="dot r"></i>Equation 2</span><span class="coord" data-coord></span></div>' +
+    '<canvas class="gcanvas" role="img" aria-label="Coordinate grid. Click to place points."></canvas>' +
+    '<div class="gbtns"><button class="btn" data-gact="undo">Undo</button><button class="btn" data-gact="clear">Clear</button>' +
+    '<button class="btn primary" data-gact="check">Check my lines</button><button class="btn" data-gact="show">Show answer</button></div>' +
+    '<div class="msg gmsg" role="status"></div></div>';
+}
+
+var TYPE = ['One solution','No solution','Infinite solutions'];
+
+/* ---------- graph targets ---------- */
+var GR = {
+  g1:{lines:[{m:2,b:-6},{m:-1,b:9}], sol:[5,4], name:'g1'},
+  g2:{lines:[{m:-1/3,b:2},{m:-1/3,b:-3}], name:'g2'},
+  g3:{lines:[{m:2,b:1}], name:'g3'}
+};
+
+/* ---------- slides ---------- */
+var slides = [];
+function add(title, html){ slides.push({title:title, html:html}); }
+
+add('Unit 3: Solving Systems of Equations',
+  '<h1>Unit 3: Solving Systems of Equations</h1>' +
+  '<h2 class="muted">3-1 Solving Systems of Equations by Graphing</h2>' +
+  '<p class="lead">You will type your answers right on this page as we go. Your work saves on this computer, and at the end you can save a copy of it to turn in.</p>' +
+  '<p>Your name: <input class="fld" type="text" autocomplete="off" data-key="name" data-label="Name" style="width:26ch;text-align:left" placeholder="First and last name" aria-label="Your name"></p>' +
+  '<p><button class="btn primary" data-go="2">Let’s start →</button></p>');
+
+add('Learning goals',
+  '<h2>Learning goals</h2>' +
+  '<p class="muted">Before we start, how do you feel about each goal?</p>' +
+  [
+   'I can determine if an ordered pair is a solution of a system of equations.',
+   'I understand that there can be one solution, no solution, or infinite solutions to a system of equations.',
+   'I can determine the solution of a system of equations by graphing.'
+  ].map(function(t,i){
+    return '<div class="goal"><span class="g">'+t+'</span>' +
+      S('cpre'+(i+1), 'conf', null, ['Not yet','Getting there','Got it!'], {label:'Confidence before, goal '+(i+1)}) + '</div>';
+  }).join(''));
+
+add('Is it a solution? (example)',
+  '<h2>Is it a solution? Let’s do one together</h2>' +
+  pairBlock('p1', '−3', '1', [
+    {eq:'y = x + 4', plug:'−3 + 4', val:'1', cmp:'y = 1', truth:true},
+    {eq:'2x + 3y = −3', plug:'2(−3) + 3(1)', val:'-3', cmp:'−3', truth:true}
+  ], 'Yes') + CB('p1') +
+  AFTER('p1', '<b>YES!</b> Both equations are true, so the point is a solution.'));
+
+add('Is it a solution? You try!',
+  '<h2>You try this one!</h2>' +
+  pairBlock('p2', '4', '2', [
+    {eq:'x + y = 6', plug:'4 + 2', val:'6', cmp:'6', truth:true},
+    {eq:'y = 2x − 5', plug:'2(4) − 5', val:'3', cmp:'y = 2', truth:false}
+  ], 'No') +
+  '<div class="final">If one equation turns out FALSE, do we still need to test the other one? ' +
+    S('p2need', 'p2', 'No', ['Yes','No'], {label:'Do we still need to test the other equation?'}) + '</div>' +
+  CB('p2') +
+  AFTER('p2', '<b>NO!</b> Only ONE equation has to be false to show that the point is NOT a solution.'));
+
+function svgCase(kind){
+  var a = '<svg viewBox="0 0 120 90" aria-hidden="true">';
+  if(kind==='one') a += '<path d="M10 80 L110 10" style="stroke:var(--blue)" stroke-width="3" fill="none"/><path d="M10 15 L110 75" style="stroke:var(--red)" stroke-width="3" fill="none"/><circle cx="60" cy="45" r="5" style="fill:var(--green)"/>';
+  if(kind==='none') a += '<path d="M10 70 L110 30" style="stroke:var(--blue)" stroke-width="3" fill="none"/><path d="M10 86 L110 46" style="stroke:var(--red)" stroke-width="3" fill="none"/>';
+  if(kind==='inf')  a += '<path d="M10 75 L110 15" style="stroke:var(--blue)" stroke-width="6" fill="none"/><path d="M10 75 L110 15" style="stroke:var(--red)" stroke-width="2" stroke-dasharray="6 5" fill="none"/>';
+  return a + '</svg>';
+}
+var DESC = ['Lines intersect at ONE point','Lines are parallel (same slope, different y-intercepts)','Both equations make the SAME line'];
+add('Three possibilities',
+  '<h2>Three possibilities for a system</h2>' +
+  '<p class="muted">Match each picture to what is happening with the lines.</p>' +
+  '<div class="cases">' +
+  '<div class="case">'+svgCase('one')+'<div><div class="cname">One solution</div>' + S('m1','cases',DESC[0],DESC,{label:'One solution means'}) + '</div></div>' +
+  '<div class="case">'+svgCase('none')+'<div><div class="cname">No solution</div>' + S('m2','cases',DESC[1],DESC,{label:'No solution means'}) + '</div></div>' +
+  '<div class="case">'+svgCase('inf')+'<div><div class="cname">Infinite solutions</div>' + S('m3','cases',DESC[2],DESC,{label:'Infinite solutions means'}) + '</div></div>' +
+  '</div>' + CB('cases') +
+  AFTER('cases', 'Parallel lines have the <b>same slope</b> and never touch, so there is no solution. When both equations make the same line, every point on the line is a solution.'));
+
+add('Solve by graphing: one solution',
+  '<h2>Solve by graphing: one solution</h2>' +
+  '<div class="cols"><div>' + graphBlock('g1') + '</div><div>' +
+  '<div class="eqrow"><div class="eqname">Equation 1</div><div class="eqtext">y = 2x − 6</div></div>' +
+  '<div class="eqrow"><div class="eqname">Equation 2</div><div class="eqtext">y = −x + 9</div></div>' +
+  '<p class="muted">Click two points on each line. Tip: start at the y-intercept, then use the slope.</p>' +
+  '<p>The lines cross at (x, y) = ' + F('g1sol','g1q','5,4',{w:8,ph:'(  ,  )',label:'Graph 1 intersection point'}) + '</p>' +
+  '<p>This system has ' + S('g1type','g1q','One solution',TYPE,{label:'Graph 1 number of solutions'}) + '</p>' +
+  CB('g1q') + AFTER('g1q','The solution is the point where the lines intersect: <b>(5, 4)</b>.') +
+  '</div></div>');
+
+add('Check your solution',
+  '<h2>Check the solution algebraically</h2>' +
+  '<p class="muted">Does the point you found on the graph, (5, 4), work in both equations?</p>' +
+  pairBlock('p3', '5', '4', [
+    {eq:'y = 2x − 6', plug:'2(5) − 6', val:'4', cmp:'y = 4', truth:true},
+    {eq:'y = −x + 9', plug:'−5 + 9', val:'4', cmp:'y = 4', truth:true}
+  ], 'Yes') + CB('p3') +
+  AFTER('p3', 'It works in <b>both</b> equations, so (5, 4) is the solution.'));
+
+add('Get ready to graph: solve for y',
+  '<h2>Get ready to graph: solve for y</h2>' +
+  '<p class="lead">Put each equation in slope-intercept form, <b>y = mx + b</b>, so it is easy to graph.</p>' +
+  '<div class="note">Hint: subtract x from both sides, then divide every term by 3. Type fractions like -1/3.</div>' +
+  '<div class="eqrow"><div class="eqname">Equation 1</div><div class="eqtext">x + 3y = 6</div>' +
+    '<div>y = ' + F('s1m','solve','-1/3|-0.33|-0.333',{w:7,label:'Eq 1 slope m'}) + ' x + ' + F('s1b','solve','2',{w:5,label:'Eq 1 y-intercept b'}) + '</div></div>' +
+  '<div class="eqrow"><div class="eqname">Equation 2</div><div class="eqtext">x + 3y = −9</div>' +
+    '<div>y = ' + F('s2m','solve','-1/3|-0.33|-0.333',{w:7,label:'Eq 2 slope m'}) + ' x + ' + F('s2b','solve','-3',{w:5,label:'Eq 2 y-intercept b (type the sign)'}) + '</div></div>' +
+  '<p>What do you notice about the two slopes? ' + S('snote1','solve','They are the same',['They are the same','They are different'],{label:'Slopes'}) + '</p>' +
+  '<p>And the y-intercepts? ' + S('snote2','solve','They are different',['They are the same','They are different'],{label:'Y-intercepts'}) + '</p>' +
+  CB('solve') + AFTER('solve','Both slopes are −1/3 and the y-intercepts are different. Keep that in mind for the next graph!'));
+
+add('Solve by graphing: no solution',
+  '<h2>Solve by graphing: what happens here?</h2>' +
+  '<div class="cols"><div>' + graphBlock('g2') + '</div><div>' +
+  '<div class="eqrow"><div class="eqname">Equation 1</div><div class="eqtext">y = −(1/3)x + 2</div></div>' +
+  '<div class="eqrow"><div class="eqname">Equation 2</div><div class="eqtext">y = −(1/3)x − 3</div></div>' +
+  '<p class="muted">Tip: the slope is −1/3, so go down 1 and right 3.</p>' +
+  '<p>This system has ' + S('g2type','g2q','No solution',TYPE,{label:'Graph 2 number of solutions'}) + '</p>' +
+  '<p>Why? ' + S('g2why','g2q',DESC[1],DESC,{label:'Graph 2 reason'}) + '</p>' +
+  CB('g2q') + AFTER('g2q','<b>Parallel lines: there is NO SOLUTION.</b> Both slopes are −1/3.') +
+  '</div></div>');
+
+add('Solve by graphing: infinite solutions',
+  '<h2>Solve by graphing: what do you notice?</h2>' +
+  '<div class="cols"><div>' + graphBlock('g3') + '</div><div>' +
+  '<div class="eqrow"><div class="eqname">Equation 1</div><div class="eqtext">y = 2x + 1</div></div>' +
+  '<div class="eqrow"><div class="eqname">Equation 2</div><div class="eqtext">4x − 2y = −2</div>' +
+    '<div>Solve for y: y = ' + F('i2m','g3q','2',{w:5,label:'Eq 2 slope m'}) + ' x + ' + F('i2b','g3q','1',{w:5,label:'Eq 2 y-intercept b'}) + '</div></div>' +
+  '<p>This system has ' + S('g3type','g3q','Infinite solutions',TYPE,{label:'Graph 3 number of solutions'}) + '</p>' +
+  CB('g3q') + AFTER('g3q','<b>INFINITE solutions!</b> Both equations are really the same line.') +
+  '<h3>What do you notice? Explain in your own words.</h3>' +
+  '<textarea class="fld" rows="3" data-key="g3note" data-label="What I notice about graph 3" aria-label="What do you notice?"></textarea>' +
+  '</div></div>');
+
+var DM = [
+  ['y = 2x + 6','y = −2x − 2','One solution','-2,2'],
+  ['y = 3x − 1','y = 3x + 4','No solution',null],
+  ['y = −x + 5','x + y = 5','Infinite solutions',null],
+  ['y = x − 1','y = −2x + 5','One solution','2,1']
+];
+add('Solve with Desmos',
+  '<h2>Now let’s solve these using Desmos</h2>' +
+  '<div class="cols"><div>' +
+  '<ol class="steps">' +
+  '<li>Open <a href="https://www.desmos.com/calculator" target="_blank" rel="noopener noreferrer">desmos.com/calculator</a> in a new tab.</li>' +
+  '<li>Type one equation in box 1. No need to change the form, just type it as is!</li>' +
+  '<li>Type the second equation in box 2.</li>' +
+  '<li>Read the graph:<ul>' +
+    '<li><b>Lines intersect:</b> one solution. Click the gray dot to see the ordered pair.</li>' +
+    '<li><b>Lines are parallel:</b> no solution.</li>' +
+    '<li><b>Only one line shows:</b> infinite solutions.</li></ul></li>' +
+  '</ol></div><div>' +
+  '<table class="dm"><thead><tr><th>System</th><th>How many?</th><th>Solution</th></tr></thead><tbody>' +
+  DM.map(function(r,i){
+    return '<tr><td><b>'+r[0]+'</b><br><b>'+r[1]+'</b></td><td>' +
+      S('dmt'+i,'dm',r[2],TYPE,{label:'Desmos system '+(i+1)+' how many'}) + '</td><td>' +
+      (r[3] ? F('dms'+i,'dm',r[3],{w:8,ph:'(  ,  )',label:'Desmos system '+(i+1)+' solution'}) : '<span class="muted">none to write</span>') +
+      '</td></tr>';
+  }).join('') +
+  '</tbody></table>' + CB('dm') + AFTER('dm','Nice work. Always check that your Desmos answer makes sense with the equations you typed.') +
+  '</div></div>');
+
+add('Exit ticket',
+  '<h2>Exit ticket</h2>' +
+  '<p class="muted">How do you feel about each goal now?</p>' +
+  [
+   'I can determine if an ordered pair is a solution of a system of equations.',
+   'I understand that there can be one solution, no solution, or infinite solutions.',
+   'I can determine the solution of a system of equations by graphing.'
+  ].map(function(t,i){
+    return '<div class="goal"><span class="g">'+t+'</span>' +
+      S('cpost'+(i+1), 'conf2', null, ['Not yet','Getting there','Got it!'], {label:'Confidence after, goal '+(i+1)}) + '</div>';
+  }).join('') +
+  '<h3>In your own words: how can you tell a system has NO solution just by looking at the equations?</h3>' +
+  '<textarea class="fld" rows="3" data-key="reflect" data-label="Reflection" aria-label="Reflection"></textarea>' +
+  '<h3>Save your work</h3>' +
+  '<p class="muted">Save a copy to turn in, or copy the text below and paste it where your teacher asks.</p>' +
+  '<div class="checkbar"><button class="btn primary" id="dlbtn">Save my responses</button><button class="btn" id="cpbtn">Copy to clipboard</button><span class="msg" id="exitmsg" role="status"></span></div>' +
+  '<textarea class="fld resp" id="respbox" rows="10" readonly aria-label="Your responses"></textarea>' +
+  '<h3>Start over</h3><p class="muted">Clear everything on every slide, including your name, and go back to the beginning. Save your responses first if you still need them.</p>' +
+  '<div class="checkbar"><button class="btn" id="startover">⟲ Start over</button><span class="msg" id="somsg" role="status"></span></div>');
+
+
+/* ---------- extra explanations (for students who were absent) ---------- */
+var HELP = {
+1:['Were you absent? Start here', `
+<h4>What is a system of equations?</h4>
+<p>A <b>system of equations</b> is two (or more) equations that we look at together. Each equation has its own line when you graph it.</p>
+<h4>What is a solution?</h4>
+<p>A <b>solution</b> is an ordered pair <span class="math">(x, y)</span> that makes <b>both</b> equations true at the same time. On a graph, that is a point that sits on <b>both</b> lines.</p>
+<h4>How to use this page</h4>
+<ol><li>Go through the slides in order with the <b>Next</b> button.</li><li>Fill in the blanks and press <b>Check</b> to see if you are right. Use <b>Show answers</b> if you are stuck.</li><li>Every slide has a blue <b>Need more explanation?</b> button like this one.</li><li>At the end, save your responses and turn them in.</li></ol>`],
+2:['Need more explanation?', `
+<h4>Ordered pair</h4>
+<p>Two numbers in parentheses, like <span class="math">(5, 4)</span>. The first number is x (left or right) and the second is y (up or down).</p>
+<h4>Three goals, in plain words</h4>
+<ol><li><b>Is this point a solution?</b> Plug the x and y values into both equations and see if both are true.</li><li><b>How many solutions can there be?</b> Two lines can cross once, never cross, or be exactly the same line.</li><li><b>Solve by graphing.</b> Graph both lines and find the point where they cross.</li></ol>`],
+3:['Need more explanation?', `
+<h4>How to test a point</h4>
+<ol><li>Replace x and y in the equation with the numbers from the ordered pair.</li><li>Do the arithmetic.</li><li>Ask: do both sides match? If yes, that equation is TRUE for the point.</li></ol>
+<h4>Worked example with (−3, 1)</h4>
+<p><b>Equation 1:</b> y = x + 4. Plug in: <span class="math">1 = −3 + 4</span>, and −3 + 4 = 1. So 1 = 1, which is <b>TRUE</b>.</p>
+<p><b>Equation 2:</b> 2x + 3y = −3. Plug in: <span class="math">2(−3) + 3(1) = −6 + 3 = −3</span>. So −3 = −3, which is <b>TRUE</b>.</p>
+<p>Both equations are true, so (−3, 1) <b>is</b> a solution.</p>
+<h4>Watch out</h4>
+<p>Use parentheses when you plug in a negative number, like 2(−3). That keeps you from making sign mistakes.</p>`],
+4:['Need more explanation?', `
+<h4>Worked example with (4, 2)</h4>
+<p><b>Equation 1:</b> x + y = 6. Plug in: 4 + 2 = 6. That matches, so it is <b>TRUE</b>.</p>
+<p><b>Equation 2:</b> y = 2x − 5. The right side is 2(4) − 5 = 8 − 5 = 3. But y is 2, and 2 ≠ 3, so it is <b>FALSE</b>.</p>
+<p>The point works in one equation but not the other, so (4, 2) is <b>NOT</b> a solution.</p>
+<h4>Why only one false equation is enough</h4>
+<p>A solution must make <b>every</b> equation true. If you find even one false equation, you can stop. The point is not a solution.</p>`],
+5:['Need more explanation?', `
+<h4>Use the slopes to predict what will happen</h4>
+<ul>
+<li><b>Different slopes:</b> the lines tilt differently, so they cross exactly once. <b>One solution.</b></li>
+<li><b>Same slope, different y-intercepts:</b> the lines are parallel. They never touch. <b>No solution.</b></li>
+<li><b>Same slope and same y-intercept:</b> it is the same line. Every point on it works. <b>Infinite solutions.</b></li>
+</ul>
+<p>The slope is the number multiplied by x in y = mx + b. The y-intercept is the number added at the end.</p>`],
+6:['Need more explanation?', `
+<h4>How to graph y = mx + b</h4>
+<ol><li>Plot the <b>y-intercept</b> (b) on the y-axis.</li><li>Use the <b>slope</b> (m = rise/run) to find more points: go up or down for the rise, then right for the run.</li><li>Click two points for the line, then do the second equation.</li></ol>
+<h4>Worked example</h4>
+<p><b>y = 2x − 6:</b> start at (0, −6). The slope is 2 (up 2, right 1), so the next point is (1, −4). Another point on the line is (3, 0).</p>
+<p><b>y = −x + 9:</b> start at (0, 9). The slope is −1 (down 1, right 1), so the next point is (1, 8). Another point on the line is (9, 0).</p>
+<h4>Reading the answer</h4>
+<p>The lines cross at <span class="math">(5, 4)</span>. That crossing point is the solution. The next slide proves it by plugging it in.</p>`],
+7:['Need more explanation?', `
+<h4>Why check by plugging in?</h4>
+<p>Reading a point from a graph can be a little off. Plugging it into <b>both</b> equations tells you for sure.</p>
+<p><b>y = 2x − 6:</b> 2(5) − 6 = 10 − 6 = 4, and y = 4. <b>TRUE</b>.</p>
+<p><b>y = −x + 9:</b> −5 + 9 = 4, and y = 4. <b>TRUE</b>.</p>
+<p>Both are true, so (5, 4) really is the solution.</p>`],
+8:['Need more explanation?', `
+<h4>Why solve for y?</h4>
+<p>Slope-intercept form, <b>y = mx + b</b>, tells you the starting point (b) and the slope (m), so the line is easy to graph.</p>
+<h4>Equation 1: x + 3y = 6</h4>
+<ol><li>Subtract x from both sides: 3y = −x + 6</li><li>Divide <b>every</b> term by 3: y = −(1/3)x + 2</li></ol>
+<p>Slope = −1/3, y-intercept = 2.</p>
+<h4>Equation 2: x + 3y = −9</h4>
+<ol><li>Subtract x: 3y = −x − 9</li><li>Divide every term by 3: y = −(1/3)x − 3</li></ol>
+<p>Slope = −1/3, y-intercept = −3.</p>
+<p><b>Notice:</b> same slope, different y-intercepts. That is a clue for the next slide.</p>`],
+9:['Need more explanation?', `
+<h4>Graphing a slope of −1/3</h4>
+<p>A slope of −1/3 means <b>down 1, right 3</b>.</p>
+<p><b>Equation 1:</b> start at (0, 2), then go down 1 and right 3 to get (3, 1).</p>
+<p><b>Equation 2:</b> start at (0, −3), then go down 1 and right 3 to get (3, −4).</p>
+<h4>What you see</h4>
+<p>The lines are parallel, so they never cross. With no crossing point, there is <b>NO solution</b>. Parallel lines always have the same slope (here, −1/3).</p>`],
+10:['Need more explanation?', `
+<h4>Solve Equation 2 for y</h4>
+<p>4x − 2y = −2</p>
+<ol><li>Subtract 4x from both sides: −2y = −4x − 2</li><li>Divide every term by −2: <b>y = 2x + 1</b></li></ol>
+<h4>What you see</h4>
+<p>That is exactly Equation 1. Both equations make the <b>same line</b>, so you only see one line on the graph. Every point on the line makes both equations true, so there are <b>infinitely many solutions</b>.</p>`],
+11:['Need more explanation?', `
+<h4>Using Desmos</h4>
+<ol><li>Go to desmos.com/calculator.</li><li>Type the first equation in box 1 exactly as it is written. Do not change its form.</li><li>Type the second equation in box 2.</li></ol>
+<h4>Reading the graph</h4>
+<ul>
+<li><b>The lines cross:</b> hover over or click the gray dot to see the ordered pair. That is the one solution.</li>
+<li><b>The lines are parallel:</b> no solution.</li>
+<li><b>You only see one line:</b> the second line is hiding exactly on top of the first, so there are infinitely many solutions.</li>
+</ul>
+<p>Tip: you can check Desmos with the slopes. Different slopes always means one solution.</p>`],
+12:['Need a hint for the reflection?', `
+<h4>Telling the case from the equations</h4>
+<p>Put both equations in y = mx + b form and compare:</p>
+<ul>
+<li>Different slopes: <b>one solution</b></li>
+<li>Same slope, different y-intercepts: <b>no solution</b></li>
+<li>Same slope and same y-intercept: <b>infinite solutions</b></li>
+</ul>
+<p>Use these ideas in your own words to explain how you know when there is no solution.</p>`]
+};
+function redoHtml(n){
+  if(n === 1) return '';
+  return '<div class="redo"><button class="btn" data-redo="'+n+'">↻ Do it again</button><span class="msg" data-redomsg="'+n+'" role="status"></span></div>';
+}
+var redoTimers = {};
+function clearSlide(n, all){
+  var sec = document.getElementById('slide-'+n); if(!sec) return;
+  sec.querySelectorAll('[data-key]').forEach(function(el){
+    if(el.dataset.key === 'name' && !all) return;
+    el.value = ''; delete state.v[el.dataset.key]; el.classList.remove('ok','bad');
+  });
+  sec.querySelectorAll('[data-msg]').forEach(function(m){ m.textContent = ''; m.className = 'msg'; });
+  sec.querySelectorAll('[data-after]').forEach(function(a){ a.hidden = true; });
+  sec.querySelectorAll('[data-graph]').forEach(function(w){
+    var id = w.dataset.graph, o = gs[id]; state.g[id] = []; o.show = false;
+    var sb = w.querySelector('[data-gact="show"]'); if(sb) sb.textContent = 'Show answer';
+    gmsg(o, ''); drawGraph(o);
+  });
+  save(); if(n === N) refreshResp();
+}
+function handleRedo(btn){
+  var n = +btn.dataset.redo, note = document.querySelector('[data-redomsg="'+n+'"]');
+  if(btn.dataset.armed === '1'){
+    clearTimeout(redoTimers[n]); btn.dataset.armed = '0'; btn.textContent = '↻ Do it again';
+    clearSlide(n); note.textContent = 'Cleared. Give it another try!';
+    setTimeout(function(){ note.textContent = ''; }, 3000);
+  } else {
+    btn.dataset.armed = '1'; btn.textContent = 'Click again to clear this slide'; note.textContent = '';
+    redoTimers[n] = setTimeout(function(){ btn.dataset.armed = '0'; btn.textContent = '↻ Do it again'; }, 4000);
+  }
+}
+function helpHtml(n){
+  var h = HELP[n]; if(!h) return '';
+  return '<details class="help"><summary><span class="show">💡 ' + h[0] + '</span><span class="hide">Hide explanation</span></summary><div class="hbody">' + h[1] + '</div></details>';
+}
+
+/* ---------- build DOM ---------- */
+var deck = document.getElementById('deck');
+deck.innerHTML = slides.map(function(s,i){
+  return '<section class="slide" id="slide-'+(i+1)+'" data-n="'+(i+1)+'" data-title="'+s.title.replace(/"/g,'&quot;')+'" hidden>'+s.html+redoHtml(i+1)+helpHtml(i+1)+'</section>';
+}).join('');
+var dotsEl = document.getElementById('dots');
+dotsEl.innerHTML = slides.map(function(s,i){ return '<button data-go="'+(i+1)+'" aria-label="Go to slide '+(i+1)+': '+s.title.replace(/"/g,'&quot;')+'"></button>'; }).join('');
+
+/* restore saved values */
+document.querySelectorAll('[data-key]').forEach(function(el){
+  var v = state.v[el.dataset.key]; if(v != null) el.value = v;
+});
+
+/* ---------- answer matching ---------- */
+function norm(s){ return String(s).toLowerCase().replace(/[−–]/g,'-').replace(/\s+/g,'').replace(/[()]/g,''); }
+function num(s){
+  if(/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+  var m = /^(-?\d+)\/(\d+)$/.exec(s); if(m && +m[2] !== 0) return (+m[1])/(+m[2]);
+  return NaN;
+}
+function matches(val, ans){
+  var nv = norm(val); if(nv==='') return false;
+  return String(ans).split('|').some(function(a){
+    var na = norm(a);
+    if(nv === na) return true;
+    var x = num(nv), y = num(na);
+    return !isNaN(x) && !isNaN(y) && Math.abs(x-y) < 1e-9;
+  });
+}
+function fieldsOf(g){ return Array.prototype.slice.call(document.querySelectorAll('[data-group="'+g+'"][data-ans]')); }
+function msgEl(g){ return document.querySelector('[data-msg="'+g+'"]'); }
+function afterEl(g){ return document.querySelector('[data-after="'+g+'"]'); }
+function checkGroup(g){
+  var fs = fieldsOf(g), ok = 0, blank = 0;
+  fs.forEach(function(el){
+    var v = el.value;
+    if(v.trim()===''){ blank++; el.classList.remove('ok','bad'); return; }
+    var c = matches(v, el.dataset.ans);
+    el.classList.toggle('ok', c); el.classList.toggle('bad', !c);
+    if(c) ok++;
+  });
+  var m = msgEl(g), a = afterEl(g);
+  if(ok === fs.length){
+    m.textContent = '✓ All correct!'; m.className = 'msg good'; if(a) a.hidden = false;
+  } else {
+    m.textContent = ok + ' of ' + fs.length + ' correct' + (blank ? ' (' + blank + ' blank)' : '') + '. Look again at the red ones.';
+    m.className = 'msg'; if(a) a.hidden = true;
+  }
+}
+function revealGroup(g){
+  fieldsOf(g).forEach(function(el){
+    el.value = el.dataset.ans.split('|')[0];
+    state.v[el.dataset.key] = el.value;
+    el.classList.remove('bad'); el.classList.add('ok');
+  });
+  save();
+  var m = msgEl(g), a = afterEl(g);
+  m.textContent = 'Answers shown.'; m.className = 'msg'; if(a) a.hidden = false;
+}
+
+/* ---------- graphs ---------- */
+var L = 11; // half-width of the visible window; points live on -10..10
+var gs = {};
+function css(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function gpts(id){ return (state.g[id] = state.g[id] || []); }
+
+function lineFrom(p, q){
+  if(p[0] === q[0]) return null;
+  var m = (q[1]-p[1])/(q[0]-p[0]);
+  return {m:m, b:p[1]-m*p[0]};
+}
+function drawGraph(o){
+  var cv = o.cv, size = cv.clientWidth; if(!size) return;
+  var dpr = window.devicePixelRatio || 1;
+  if(cv.width !== Math.round(size*dpr)){ cv.width = Math.round(size*dpr); cv.height = Math.round(size*dpr); }
+  var ctx = cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  var sc = size/(2*L);
+  function X(x){ return (x+L)*sc; } function Y(y){ return (L-y)*sc; }
+  var cGrid = css('--grid'), cAxis = css('--axis'), cText = css('--text'), cBlue = css('--blue'), cRed = css('--red'), cGreen = css('--green');
+  ctx.clearRect(0,0,size,size);
+  ctx.lineWidth = 1; ctx.strokeStyle = cGrid;
+  for(var i=-10;i<=10;i++){
+    ctx.beginPath(); ctx.moveTo(X(i),0); ctx.lineTo(X(i),size); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,Y(i)); ctx.lineTo(size,Y(i)); ctx.stroke();
+  }
+  ctx.strokeStyle = cAxis; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(X(0),0); ctx.lineTo(X(0),size); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,Y(0)); ctx.lineTo(size,Y(0)); ctx.stroke();
+  ctx.fillStyle = cAxis; ctx.font = Math.max(10, size/38) + 'px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for(var t=-10;t<=10;t+=2){ if(t===0) continue;
+    ctx.fillText(String(t).replace('-','−'), X(t), Y(0)+3);
+  }
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for(var u=-10;u<=10;u+=2){ if(u===0) continue;
+    ctx.fillText(String(u).replace('-','−'), X(0)-5, Y(u));
+  }
+  function seg(p, q, color, w, dash){
+    ctx.strokeStyle = color; ctx.lineWidth = w; ctx.setLineDash(dash || []);
+    ctx.beginPath();
+    if(p[0] === q[0]){ ctx.moveTo(X(p[0]), Y(-L)); ctx.lineTo(X(p[0]), Y(L)); }
+    else {
+      var m = (q[1]-p[1])/(q[0]-p[0]);
+      ctx.moveTo(X(-L), Y(p[1]+m*(-L-p[0]))); ctx.lineTo(X(L), Y(p[1]+m*(L-p[0])));
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  var cfg = GR[o.id], P = gpts(o.id);
+  if(o.show){
+    cfg.lines.forEach(function(ln){ seg([-L, ln.m*-L+ln.b], [L, ln.m*L+ln.b], cGreen, 5, [10,7]); });
+  }
+  if(P.length >= 2) seg(P[0], P[1], cBlue, 3);
+  if(P.length >= 4) seg(P[2], P[3], cRed, 3);
+  ctx.font = 'bold ' + Math.max(11, size/34) + 'px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+  P.forEach(function(p, i){
+    var c = i < 2 ? cBlue : cRed;
+    ctx.fillStyle = c; ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), 6, 0, 6.2832); ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = css('--canvasbg'); ctx.stroke();
+    ctx.fillStyle = cText;
+    ctx.fillText('(' + String(p[0]).replace('-','−') + ', ' + String(p[1]).replace('-','−') + ')', X(p[0]) + 9, Y(p[1]) - 6);
+  });
+  if(o.show && cfg.sol){
+    ctx.strokeStyle = cGreen; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(X(cfg.sol[0]), Y(cfg.sol[1]), 12, 0, 6.2832); ctx.stroke();
+  }
+}
+function gmsg(o, text, good){ var m = o.w.querySelector('.gmsg'); m.textContent = text; m.className = 'msg gmsg' + (good ? ' good' : ''); }
+function checkGraph(o){
+  var P = gpts(o.id), cfg = GR[o.id];
+  if(P.length < 4){ gmsg(o, 'Place 2 points for Equation 1 (blue), then 2 points for Equation 2 (red).'); return; }
+  var ls = [lineFrom(P[0],P[1]), lineFrom(P[2],P[3])];
+  function same(a,t){ return a && Math.abs(a.m-t.m) < 1e-9 && Math.abs(a.b-t.b) < 1e-9; }
+  var idx = ls.map(function(a){ return cfg.lines.findIndex(function(t){ return same(a,t); }); });
+  var covered = cfg.lines.every(function(t,i){ return idx.indexOf(i) >= 0; });
+  if(idx.every(function(i){ return i >= 0; }) && covered){
+    gmsg(o, '✓ Both lines are correct!' + (cfg.sol ? ' Now read where they cross.' : ''), true);
+  } else if(idx.every(function(i){ return i >= 0; })){
+    gmsg(o, 'Both of your lines are the same line. Graph the other equation for the second line.');
+  } else {
+    var bad = []; idx.forEach(function(i,k){ if(i < 0) bad.push('Line ' + (k+1) + ' (' + (k ? 'red' : 'blue') + ')'); });
+    gmsg(o, bad.join(' and ') + ' doesn’t match an equation yet. Check the slope and the y-intercept.');
+  }
+}
+function initGraphs(){
+  document.querySelectorAll('[data-graph]').forEach(function(w){
+    var id = w.dataset.graph, cv = w.querySelector('canvas');
+    var o = {id:id, w:w, cv:cv, show:false}; gs[id] = o;
+    function toGrid(e){
+      var r = cv.getBoundingClientRect();
+      var x = Math.round(((e.clientX-r.left)/r.width)*2*L - L);
+      var y = Math.round(L - ((e.clientY-r.top)/r.height)*2*L);
+      return [Math.max(-10,Math.min(10,x)), Math.max(-10,Math.min(10,y))];
+    }
+    cv.addEventListener('click', function(e){
+      var P = gpts(id), g = toGrid(e);
+      if(P.length >= 4){ gmsg(o, 'You have 4 points. Use Undo or Clear to change them.'); return; }
+      if(P.length % 2 === 1 && P[P.length-1][0] === g[0] && P[P.length-1][1] === g[1]) return;
+      P.push(g); save(); drawGraph(o);
+      gmsg(o, P.length === 4 ? 'Now press “Check my lines”.' : (P.length < 2 ? 'Click a second point on Equation 1.' : (P.length === 2 ? 'Now click two points for Equation 2 (red).' : 'Click a second point on Equation 2.')));
+    });
+    cv.addEventListener('pointermove', function(e){
+      var g = toGrid(e); w.querySelector('[data-coord]').textContent = '(' + String(g[0]).replace('-','−') + ', ' + String(g[1]).replace('-','−') + ')';
+    });
+    cv.addEventListener('pointerleave', function(){ w.querySelector('[data-coord]').textContent = ''; });
+    w.addEventListener('click', function(e){
+      var b = e.target.closest('[data-gact]'); if(!b) return;
+      var a = b.dataset.gact, P = gpts(id);
+      if(a === 'undo'){ P.pop(); save(); gmsg(o, ''); drawGraph(o); }
+      if(a === 'clear'){ state.g[id] = []; save(); o.show = false; gmsg(o, ''); drawGraph(o); }
+      if(a === 'check'){ checkGraph(o); }
+      if(a === 'show'){ o.show = !o.show; b.textContent = o.show ? 'Hide answer' : 'Show answer'; drawGraph(o); }
+    });
+  });
+}
+function redrawCurrent(){
+  var sec = document.getElementById('slide-' + cur); if(!sec) return;
+  sec.querySelectorAll('[data-graph]').forEach(function(w){ drawGraph(gs[w.dataset.graph]); });
+}
+
+/* ---------- responses / exit ticket ---------- */
+function buildResponses(){
+  var out = ['Name: ' + (state.v.name || '(not entered)'), 'Date: ' + new Date().toLocaleDateString(), '3-1 Solving Systems of Equations by Graphing', ''];
+  document.querySelectorAll('.slide').forEach(function(sec){
+    var fs = Array.prototype.filter.call(sec.querySelectorAll('[data-key]'), function(el){ return el.dataset.key !== 'name' && el.value.trim() !== ''; });
+    var gw = sec.querySelector('[data-graph]'), gp = gw ? gpts(gw.dataset.graph) : [];
+    if(!fs.length && !gp.length) return;
+    out.push('Slide ' + sec.dataset.n + ': ' + sec.dataset.title);
+    fs.forEach(function(el){
+      var mark = el.dataset.ans ? (matches(el.value, el.dataset.ans) ? '  [correct]' : '  [incorrect]') : '';
+      out.push('  ' + el.dataset.label + ': ' + el.value.trim() + mark);
+    });
+    if(gp.length) out.push('  Graph points (first two = Equation 1, next two = Equation 2): ' + gp.map(function(p){ return '(' + p[0] + ', ' + p[1] + ')'; }).join(' '));
+    out.push('');
+  });
+  return out.join('\n');
+}
+function refreshResp(){ var b = document.getElementById('respbox'); if(b) b.value = buildResponses(); }
+function exitMsg(t){ document.getElementById('exitmsg').textContent = t; }
+document.getElementById('dlbtn').addEventListener('click', function(){
+  var text = buildResponses(); refreshResp();
+  var fname = 'systems-by-graphing-' + ((state.v.name || 'student').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'') || 'student') + '.txt';
+  Promise.resolve().then(function(){
+    if(!(window.claude && window.claude.use)) throw {code:'unavailable'};
+    return window.claude.use('downloads');
+  }).then(function(dl){
+    if(!dl) throw {code:'unavailable'};
+    return dl.save({filename:fname, data:text});
+  }).then(function(){ exitMsg('Saved!'); }).catch(function(err){
+    exitMsg(err && err.code === 'declined' ? 'Save cancelled.' : 'Saving a file isn’t available here. Use “Copy to clipboard” instead.');
+  });
+});
+document.getElementById('cpbtn').addEventListener('click', function(){
+  refreshResp(); var box = document.getElementById('respbox');
+  function fallback(){ box.focus(); box.select(); var ok = false; try{ ok = document.execCommand('copy'); }catch(e){} exitMsg(ok ? 'Copied!' : 'Select the text below and copy it.'); }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(box.value).then(function(){ exitMsg('Copied!'); }, fallback);
+  } else fallback();
+});
+
+/* ---------- navigation ---------- */
+var cur = 1, N = slides.length;
+function show(n){
+  n = Math.max(1, Math.min(N, n)); cur = n;
+  document.querySelectorAll('.slide').forEach(function(s){ s.hidden = (+s.dataset.n !== n); });
+  document.getElementById('bar').style.width = (n/N*100) + '%';
+  document.getElementById('count').textContent = n + ' of ' + N;
+  document.getElementById('stitle').textContent = slides[n-1].title;
+  document.getElementById('prev').disabled = (n === 1);
+  document.getElementById('next').disabled = (n === N);
+  Array.prototype.forEach.call(dotsEl.children, function(d,i){ d.classList.toggle('on', i === n-1); });
+  window.scrollTo(0,0);
+  if(n === N) refreshResp();
+  requestAnimationFrame(redrawCurrent);
+}
+function go(n){ n = Math.max(1, Math.min(N, n)); if(location.hash === '#s'+n) show(n); else location.hash = 's' + n; }
+function fromHash(){ var m = /^#s(\d+)$/.exec(location.hash); show(m ? +m[1] : 1); }
+window.addEventListener('hashchange', fromHash);
+document.getElementById('prev').addEventListener('click', function(){ go(cur-1); });
+document.getElementById('next').addEventListener('click', function(){ go(cur+1); });
+document.addEventListener('keydown', function(e){
+  var t = e.target && e.target.tagName;
+  if(t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
+  if(e.key === 'ArrowRight' || e.key === 'PageDown') go(cur+1);
+  if(e.key === 'ArrowLeft' || e.key === 'PageUp') go(cur-1);
+});
+
+/* ---------- global events ---------- */
+document.addEventListener('click', function(e){
+  var c = e.target.closest('[data-check]'); if(c){ checkGroup(c.dataset.check); return; }
+  var r = e.target.closest('[data-reveal]'); if(r){ revealGroup(r.dataset.reveal); return; }
+  var d = e.target.closest('[data-redo]'); if(d){ handleRedo(d); return; }
+  var g = e.target.closest('[data-go]'); if(g){ go(+g.dataset.go); return; }
+});
+function onChange(e){
+  var el = e.target; if(!el.dataset || !el.dataset.key) return;
+  state.v[el.dataset.key] = el.value; save();
+  el.classList.remove('ok','bad');
+  if(cur === N) refreshResp();
+}
+document.addEventListener('input', onChange);
+document.addEventListener('change', onChange);
+window.addEventListener('resize', redrawCurrent);
+if(window.matchMedia){
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  if(mq.addEventListener) mq.addEventListener('change', redrawCurrent);
+}
+
+var allOpen = false;
+document.getElementById('helpall').addEventListener('click', function(){
+  allOpen = !allOpen;
+  document.querySelectorAll('details.help').forEach(function(d){ d.open = allOpen; });
+  this.textContent = allOpen ? 'Close all explanations' : 'Open all explanations';
+  this.setAttribute('aria-pressed', allOpen ? 'true' : 'false');
+});
+var soTimer;
+document.getElementById('startover').addEventListener('click', function(){
+  var b = this, m = document.getElementById('somsg');
+  if(b.dataset.armed === '1'){
+    clearTimeout(soTimer); b.dataset.armed = '0'; b.textContent = '⟲ Start over'; m.textContent = '';
+    for(var n = 1; n <= N; n++) clearSlide(n, true);
+    state.v = {}; state.g = {}; save();
+    allOpen = false; document.getElementById('helpall').textContent = 'Open all explanations';
+    document.getElementById('helpall').setAttribute('aria-pressed', 'false');
+    document.querySelectorAll('details.help').forEach(function(d){ d.open = false; });
+    exitMsg(''); refreshResp(); go(1);
+  } else {
+    b.dataset.armed = '1'; b.textContent = 'Click again to erase everything'; m.textContent = '';
+    soTimer = setTimeout(function(){ b.dataset.armed = '0'; b.textContent = '⟲ Start over'; }, 4000);
+  }
+});
+initGraphs();
+fromHash();
+})();
+</script>
+</body>
+</html>
